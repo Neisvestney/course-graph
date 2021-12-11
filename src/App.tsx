@@ -3,13 +3,14 @@ import './App.scss';
 import Graph from "./components/Graph";
 import MathInput from "./components/MathInput";
 import {Equation} from "./Types";
+import {compile} from "mathjs";
 
 type State = {
     equation: Equation
 };
 
 function App() {
-    const [state, setState] = React.useState<State>({equation: {string: "x", fn: x => x}});
+    const [state, setState] = React.useState<State>({equation: {string: "x", fn: compile("x").evaluate}});
 
     const onChange = (e: Equation) => {
         console.log(e.fn)

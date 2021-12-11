@@ -45,7 +45,6 @@ function Graph(props: Props) {
     useEffect(() => {
         const { graphCtx, graph } = state;
         if (graphCtx && graph) {
-            console.log(state.graphOffset)
             const ctx = graphCtx;
 
             // Syncing real sizes
@@ -69,8 +68,6 @@ function Graph(props: Props) {
 
             const x = (xCoord: number) => Math.round((offsetX + xCoord ) * state.graphScale);
             const y = (yCoord: number) => Math.round((offsetY + (-yCoord)) * state.graphScale);
-
-            console.log(state.graphScale, (1 - (state.graphScale - 1)))
 
             // Drawing grid
             if (state.graphScale > 0.3) {  // Temporally
@@ -115,7 +112,7 @@ function Graph(props: Props) {
                 const invertedGraphScale = 1 / state.graphScale;
                 for (let i = -offsetX; i <= graph.width * invertedGraphScale - offsetX; i += invertedGraphScale) {
                     ctx.beginPath();
-                    ctx.arc(x(i), y(props.equation.fn(i)), 2, 0, 2 * Math.PI);
+                    ctx.arc(x(i), y(props.equation.fn({x: i})), 2, 0, 2 * Math.PI);
                     ctx.fill();
                     ctx.closePath();
                 }

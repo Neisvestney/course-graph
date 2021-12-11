@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
-import {Equation} from "../Types";
+import {Equation, EquationFunction} from "../Types";
+import {compile} from "mathjs";
 
 type State = {
     input: string;
@@ -15,22 +16,20 @@ function MathInput(props: Props) {
 
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         let input = e.target.value;
-        let fn: ((x: number) => number) | undefined = props.equation?.fn;
-        let exp = '';
+        let fn: EquationFunction | undefined = props.equation?.fn;
+        let exp = input;
         try {
-            exp = input.replace(/[^0-9()+\-*\/x ]/g, ""); // Remove extra characters
-            exp = exp.replace(/x([\w1-9])$/, "x") // Remove non 'x'
-            if (exp.length === 0) throw new SyntaxError();
-            // @ts-ignore
-            fn = new Function('x', 'return ' + exp)
-            input = exp;
+            const expr = compile(exp.replace(',', '.'));
+            expr.evaluate({x: 0});
+            fn = expr.evaluate;
         } catch (e) {
-            console.error(e)
-            if (!(e instanceof SyntaxError)) throw e;
+            // @ts-ignore
+            console.log(e.message, e.message.startsWith('Error: Undefined symbol'))
+            // @ts-ignore
+            if (!e.message.startsWith('Undefined symbol') && !(e instanceof SyntaxError) && !(e instanceof TypeError)) exp = e.message;
             else exp = 'Неверное уравнение'
             fn = props.equation?.fn;
         }
-        
 
         if (props.onChange) props.onChange({
             string: exp,
@@ -41,8 +40,8 @@ function MathInput(props: Props) {
 
     return (
         <div>
-            <input placeholder={"Математическое уравнение"} onChange={onChange} value={state.input}/>
-            <p>Уравнение: {props.equation?.string}</p>
+            y = f(x) = <input placeholder={"Математическое уравнение"} onChange={onChange} value={state.input}/>
+            <p>{props.equation?.string ? props.equation?.string : 'Пустое уравнение'}</p>
         </div>
     );
 }

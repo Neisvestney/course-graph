@@ -1,6 +1,8 @@
+type EquationFunction = (x: {x: number}) => number
+
 type Equation = {
     string: string;
-    fn?: (x: number) => number;
+    fn?:EquationFunction;
 }
 
-export type {Equation}
+export type {Equation, EquationFunction}
