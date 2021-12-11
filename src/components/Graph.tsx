@@ -1,18 +1,20 @@
 import React, { Ref, useCallback, useEffect } from 'react';
+import {Equation} from "../Types";
 
 type State = {
     graph?: HTMLCanvasElement;
     graphCtx?: CanvasRenderingContext2D;
     graphOffset: { x?: number, y?: number };
-    graphScale: number
+    graphScale: number,
+    gridPadding: number,
 };
 
 type Props = {
-    data: Array<{ x: number, y: number }>
+    equation: Equation;
 }
 
-const Graph = function (props: Props) {
-    const [state, setState] = React.useState<State>({ graphOffset: {}, graphScale: 1 });
+function Graph(props: Props) {
+    const [state, setState] = React.useState<State>({ graphOffset: {}, graphScale: 30, gridPadding: 1 });
 
     const onGraphRefChange = useCallback((graph: HTMLCanvasElement) => {
         if (graph) {
@@ -27,14 +29,17 @@ const Graph = function (props: Props) {
         if (state.graphOffset.x && state.graphOffset.y && e.buttons === 1) {
             setState({
                 ...state,
-                graphOffset: { x: state.graphOffset.x + e.movementX, y: state.graphOffset.y + e.movementY },
+                graphOffset: {
+                    x: state.graphOffset.x + e.movementX * (1 / state.graphScale),
+                    y: state.graphOffset.y + e.movementY * (1 / state.graphScale)
+                },
             });
         }
     };
 
     const onGraphScroll = (e: React.WheelEvent<HTMLCanvasElement>) => {
-        const newScale = state.graphScale - e.deltaY * 0.001;
-        if (newScale > 0.1 && newScale < 2) setState({...state, graphScale: newScale})
+        const newScale = state.graphScale - e.deltaY * 0.001 * state.graphScale;
+        if (newScale > 0.1) setState({...state, graphScale: newScale})
     }
 
     useEffect(() => {
@@ -52,7 +57,7 @@ const Graph = function (props: Props) {
             if (!state.graphOffset.x || !state.graphOffset.y) {
                 setState({
                     ...state,
-                    graphOffset: { x: graph.width / 2, y: graph.height / 2 },
+                    graphOffset: { x: graph.width * (1/state.graphScale) / 2, y: graph.height * (1/state.graphScale) / 2 },
                 });
                 return;
             }
@@ -60,10 +65,10 @@ const Graph = function (props: Props) {
             const offsetX = state.graphOffset.x;
             const offsetY = state.graphOffset.y;
 
-            const gridPadding = 20 * state.graphScale;
+            const gridPadding = (state.gridPadding * state.graphScale);
 
-            const x = (xCoord: number) => (offsetX + xCoord ) * state.graphScale;
-            const y = (yCoord: number) => (offsetY + (-yCoord)) * state.graphScale;
+            const x = (xCoord: number) => Math.round((offsetX + xCoord ) * state.graphScale);
+            const y = (yCoord: number) => Math.round((offsetY + (-yCoord)) * state.graphScale);
 
             console.log(state.graphScale, (1 - (state.graphScale - 1)))
 
@@ -71,14 +76,17 @@ const Graph = function (props: Props) {
             if (state.graphScale > 0.3) {  // Temporally
                 ctx.fillStyle = 'rgb(90,90,90)';
                 for (let i = 0; i <= graph.width; i += gridPadding) {
-                    ctx.rect(i + (x(0) % gridPadding), 0, 1, graph.height);
+                    const xCoord = Math.round(i + (x(0) % gridPadding))
+                    ctx.rect(xCoord, 0, xCoord === x(0) ? 2 : 1, graph.height);
                     ctx.fill();
                 }
                 for (let i = 0; i <= graph.height; i += gridPadding) {
-                    ctx.rect(0, i + (y(0) % gridPadding), graph.width, 1);
+                    const yCoord = Math.round(i + (y(0) % gridPadding))
+                    ctx.rect(0, yCoord, graph.width, yCoord === y(0) ? 2 : 1);
                     ctx.fill();
                 }
             }
+
 
             // Drawing lines
             // ctx.strokeStyle = 'rgba(255,255,255,0.7)'
@@ -96,12 +104,27 @@ const Graph = function (props: Props) {
             // Drawing dots
             ctx.fillStyle = 'rgb(227,40,40)';
 
-            for (const dot of props.data) {
-                ctx.beginPath();
-                ctx.arc(x(dot.x), y(dot.y), 2, 0, 2 * Math.PI);
-                ctx.fill();
-                ctx.closePath();
+            // for (const dot of props.data) {
+            //     ctx.beginPath();
+            //     ctx.arc(x(dot.x), y(dot.y), 2, 0, 2 * Math.PI);
+            //     ctx.fill();
+            //     ctx.closePath();
+            // }
+
+            if (props.equation.fn) {
+                const invertedGraphScale = 1 / state.graphScale;
+                for (let i = -offsetX; i <= graph.width * invertedGraphScale - offsetX; i += invertedGraphScale) {
+                    ctx.beginPath();
+                    ctx.arc(x(i), y(props.equation.fn(i)), 2, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.closePath();
+                }
             }
+
+            // Drawing text
+            ctx.font = `${Math.min(Math.round(24 * state.graphScale), 24)}px sans-serif`;
+            ctx.fillStyle = 'rgb(255, 255, 255)'
+            ctx.fillText("0", x(0), y(0), 24)
 
             // Drawing frame
             ctx.strokeStyle = 'rgb(90,90,90)';

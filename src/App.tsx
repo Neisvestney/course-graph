@@ -1,19 +1,26 @@
 import React from 'react';
 import './App.scss';
 import Graph from "./components/Graph";
+import MathInput from "./components/MathInput";
+import {Equation} from "./Types";
 
 type State = {
-    value: number;
+    equation: Equation
 };
 
 function App() {
-    const [state, setState] = React.useState<State>({value: 0});
+    const [state, setState] = React.useState<State>({equation: {string: "x", fn: x => x}});
+
+    const onChange = (e: Equation) => {
+        console.log(e.fn)
+        setState({equation: e});
+    }
 
     return (
         <div className="App">
             <div className="content">
-                <button onClick={() => setState({value: ++state.value})}>Click</button>
-                <Graph data={[{x: state.value, y: 0}, {x: 10, y: 10}]}/>
+                <MathInput equation={state.equation} onChange={onChange}/>
+                <Graph equation={state.equation}/>
             </div>
         </div>
     );
