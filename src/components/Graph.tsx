@@ -7,6 +7,8 @@ type State = {
     graph?: HTMLCanvasElement;
     graphCtx?: CanvasRenderingContext2D;
     graphOffset: { x?: number, y?: number };
+    graphOffsetInitial: { x?: number, y?: number };
+    touchOffset: { x?: number, y?: number };
     graphScale: number,
     gridPadding: number,
 };
@@ -16,7 +18,7 @@ type Props = {
 }
 
 function Graph(props: Props) {
-    const [state, setState] = React.useState<State>({ graphOffset: {}, graphScale: 30, gridPadding: 1 });
+    const [state, setState] = React.useState<State>({ graphOffset: {}, graphOffsetInitial: {}, touchOffset: {}, graphScale: 30, gridPadding: 1 });
 
     const onGraphRefChange = useCallback((graph: HTMLCanvasElement) => {
         if (graph) {
@@ -34,6 +36,31 @@ function Graph(props: Props) {
                 graphOffset: {
                     x: state.graphOffset.x + e.movementX * (1 / state.graphScale),
                     y: state.graphOffset.y + e.movementY * (1 / state.graphScale)
+                },
+            });
+        }
+    };
+
+    const onGraphTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.touches.length === 1) {
+            setState({
+                    ...state,
+                    graphOffsetInitial: {x: state.graphOffset.x, y: state.graphOffset.y},
+                    touchOffset: {x: e.touches[0].clientX, y: e.touches[0].clientY}
+                })
+        }
+    }
+    const onGraphMoveByTouch = (e: React.TouchEvent<HTMLCanvasElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (state.touchOffset.x && state.touchOffset.y && state.graphOffsetInitial.x && state.graphOffsetInitial.y && e.touches.length === 1) {
+            setState({
+                ...state,
+                graphOffset: {
+                    x: state.graphOffsetInitial.x + (e.touches[0].clientX - state.touchOffset.x) * (1 / state.graphScale),
+                    y: state.graphOffsetInitial.y + (e.touches[0].clientY - state.touchOffset.y) * (1 / state.graphScale)
                 },
             });
         }
@@ -146,8 +173,13 @@ function Graph(props: Props) {
     }, [props, state]);
 
     return (
-        <canvas ref={onGraphRefChange} id="graph" onMouseMove={onGraphMove} onWheel={onGraphScroll}/>
+        <canvas ref={onGraphRefChange}
+                id="graph"
+                onMouseMove={onGraphMove}
+                onTouchMove={onGraphMoveByTouch}
+                onTouchStart={onGraphTouchStart}
+                onWheel={onGraphScroll}/>
     );
-};
+}
 
 export default Graph;

@@ -3,4 +3,5 @@
 canvas#graph {
   width: calc(min(600px, 100vw - #{$paddings * 2}));
   height: 400px;
+  touch-action: none;
 }
