@@ -1,20 +1,42 @@
+@import "vars";
+
 .App {
-  text-align: center;
   background-color: #282c34;
+  color: white;
   min-height: 100vh;
+  a {color: white}
 
   .content {
-    min-height: 100vh;
+    padding-left: $paddings;
+    padding-right: $paddings;
+    text-align: center;
+    min-height: calc(100vh - #{$footer-height + 1px});
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+  }
 
-    canvas#graph {
-      width: calc(min(500px, 100vw));
-      height: 400px;
+  footer {
+    background: #1e2124;
+    padding-left: $paddings;
+    padding-right: $paddings;
+    height: $footer-height;
+
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    .main {
+      color: white;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      img {
+        height: 80%;
+      }
     }
   }
 }

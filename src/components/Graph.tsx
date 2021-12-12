@@ -1,6 +1,8 @@
 import React, { Ref, useCallback, useEffect } from 'react';
 import {Equation} from "../Types";
 
+import './Graph.scss';
+
 type State = {
     graph?: HTMLCanvasElement;
     graphCtx?: CanvasRenderingContext2D;

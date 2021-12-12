@@ -2,6 +2,8 @@ import React, {useState} from 'react';
 import {Equation, EquationFunction} from "../Types";
 import {compile} from "mathjs";
 
+import './MathInput.scss'
+
 type State = {
     input: string;
 }
@@ -20,7 +22,7 @@ function MathInput(props: Props) {
         let exp = input;
         try {
             const expr = compile(exp.replace(',', '.'));
-            expr.evaluate({x: 0});
+            expr.evaluate({x: 1.1});
             fn = expr.evaluate;
         } catch (e) {
             // @ts-ignore
@@ -39,9 +41,9 @@ function MathInput(props: Props) {
     }
 
     return (
-        <div>
-            y = f(x) = <input placeholder={"Математическое уравнение"} onChange={onChange} value={state.input}/>
-            <p>{props.equation?.string ? props.equation?.string : 'Пустое уравнение'}</p>
+        <div className={'wrapper'}>
+            <div className={'input'}><i>y</i> = <i>f(x)</i> = <input placeholder={"Математическое уравнение"} onChange={onChange} value={state.input}/></div>
+            <p className={'equation'}>{props.equation?.string ? props.equation?.string : 'Пустое уравнение'}</p>
         </div>
     );
 }
