@@ -3,12 +3,12 @@
 
   .input {
     display: flex;
-    align-content: center;
+    align-items: center;
     gap: 10px;
     color: #afafaf;
 
     input {
-      min-width: 335px;
+      max-width: 335px;
       background: #1e2124;
       border: none;
       border-radius: 5px;
