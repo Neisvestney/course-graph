@@ -4,13 +4,15 @@ import './index.scss';
 import './animations.scss';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import {BrowserRouter} from "react-router-dom";
+import {BrowserRouter, MemoryRouter} from "react-router-dom";
+
+const Router = window.location.href.startsWith('file://') ? MemoryRouter : BrowserRouter
 
 ReactDOM.render(
     <React.StrictMode>
-        <BrowserRouter>
+        <Router>
             <App/>
-        </BrowserRouter>
+        </Router>
     </React.StrictMode>,
     document.getElementById('root')
 );
