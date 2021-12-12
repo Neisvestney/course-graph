@@ -108,8 +108,9 @@ function Graph(props: Props) {
             //     ctx.closePath();
             // }
 
+            const invertedGraphScale = 1 / state.graphScale;
+
             if (props.equation.fn) {
-                const invertedGraphScale = 1 / state.graphScale;
                 for (let i = -offsetX; i <= graph.width * invertedGraphScale - offsetX; i += invertedGraphScale) {
                     ctx.beginPath();
                     ctx.arc(x(i), y(props.equation.fn({x: i})), 2, 0, 2 * Math.PI);
@@ -119,9 +120,18 @@ function Graph(props: Props) {
             }
 
             // Drawing text
-            ctx.font = `${Math.min(Math.round(24 * state.graphScale), 24)}px sans-serif`;
+            ctx.font = `${Math.min(Math.round(0.5 * state.graphScale), 24)}px sans-serif`;
             ctx.fillStyle = 'rgb(255, 255, 255)'
-            ctx.fillText("0", x(0), y(0), 24)
+            //ctx.fillText("0", x(0), y(0), 24)
+            console.log(offsetX, state.graphScale, x(0))
+            for (let i = -gridPadding; i <= graph.width; i += gridPadding) {
+                const xCoord = Math.round(i + (x(0) % gridPadding))
+                ctx.fillText(Math.round(xCoord/state.graphScale - offsetX).toString(), xCoord, y(0))
+            }
+            for (let i = -gridPadding; i <= graph.height; i += gridPadding) {
+                const yCoord = Math.round(i + (y(0) % gridPadding))
+                ctx.fillText(Math.round(offsetY - yCoord/state.graphScale).toString(), x(0), yCoord)
+            }
 
             // Drawing frame
             ctx.strokeStyle = 'rgb(90,90,90)';
