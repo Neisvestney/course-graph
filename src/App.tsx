@@ -24,15 +24,17 @@ function App() {
 
     return (
         <div className="App">
-                <SwitchTransition>
-                    <CSSTransition key={firstPage ? 'first' : location.pathname} classNames="page-transition" timeout={300}>
-                        {!firstPage ? <Routes location={location}>
+            <SwitchTransition>
+                <CSSTransition key={firstPage ? 'first' : location.pathname} classNames="page-transition" timeout={300}>
+                    {!firstPage
+                        ? <Routes location={location}>
                             {routes.map(({path, Component}) => (
                                 <Route key={path} path={path} element={<div className="content"><Component/></div>}/>
                             ))}
-                        </Routes> : <div/>}
-                    </CSSTransition>
-                </SwitchTransition>
+                        </Routes>
+                        : <div className={"content"}/>}
+                </CSSTransition>
+            </SwitchTransition>
             <footer>
                 <Link to={'/'} className={'main'}><img src={logo} alt={''}/>CourseGraph</Link>
                 <Link to={'/about'}>О проекте</Link>
