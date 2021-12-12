@@ -11,8 +11,7 @@ jobs:
           node-version: '16'
       - run: yarn
       - run: yarn build
-      - run: zip build.zip ./build
       - uses: actions/upload-artifact@v2
         with:
           name: build
-          path: build.zip
+          path: build
